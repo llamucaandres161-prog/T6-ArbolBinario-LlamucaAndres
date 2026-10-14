@@ -1,18 +1,17 @@
-# T6 - Implementación de un Árbol Binario
+T6 - Implementación de un Árbol Binario
 
-**Autor:** Andrés Llamuca  
-**Asignatura:** Estructura de Datos (Tercer Nivel - Ingeniería de Software)  
-**Facultad:** FISEI - Universidad Técnica de Ambato  
+Autor: Andrés Llamuca
+Asignatura: Estructura de Datos (Tercer Nivel - Ingeniería de Software)
+Facultad: FISEI - Universidad Técnica de Ambato
 
-## 1. Descripción del Problema
+1. Descripción del Problema
 
-Este proyecto implementa un sistema orientado a objetos en Java para representar la organización jerárquica de las dependencias académicas de la Universidad. Se utiliza una estructura de datos de árbol binario donde cada nodo almacena el nombre de una dependencia y cuenta con un máximo de dos hijos. El sistema permite construir el árbol, visualizarlo por consola y analizar matemáticamente su estructura (cálculo recursivo de nodos, hojas y altura).
+Este proyecto implementa un sistema orientado a objetos en Java para representar la organización jerárquica de las dependencias académicas de la Universidad. Se utiliza una estructura de datos de árbol binario donde cada nodo almacena el nombre de una dependencia y cuenta con un máximo de dos hijos. El sistema permite construir el árbol, visualizarlo por consola y analizar su estructura (cálculo recursivo de nodos, hojas y altura) mediante un menú interactivo.
 
-## 2. Estructura del Árbol Binario
+2. Estructura del Árbol Binario
 
-El sistema inicializa la siguiente jerarquía institucional, la cual contiene **9 nodos** en total, **5 nodos hoja** y una **altura de 3 aristas**:
+El sistema inicializa la siguiente jerarquía institucional, la cual contiene 9 nodos, 5 hojas y una altura de 3 aristas:
 
-```
               UNIVERSIDAD
               /         \
         FISEI             DIDE
@@ -20,53 +19,54 @@ El sistema inicializa la siguiente jerarquía institucional, la cual contiene **
   SOFTWARE   TI     INVEST.  VINCULACIÓN
     /   \
  NIVEL1 NIVEL3
-```
-
-| Métrica | Valor |
-|---------|-------|
-| Total de nodos | 9 |
-| Nodos hoja | 5 (NIVEL1, NIVEL3, TI, INVEST., VINCULACIÓN) |
-| Altura (en aristas) | 3 |
-
-## 3. Estructura del Proyecto
-
-```
-src/
-├── app/
-│   └── Main.java            # Punto de entrada: construye y analiza el árbol
-├── modelo/
-│   └── Nodo.java            # Nodo con dato y referencias a hijo izquierdo/derecho
-└── negocio/
-    └── ArbolBinario.java    # Lógica del árbol: visualización y cálculos recursivos
-```
-
-## 4. Instrucciones de Ejecución
-
-El proyecto está configurado para ejecutarse desde cualquier IDE (como Visual Studio Code) o mediante la terminal.
-
-1. Clona este repositorio:
-   ```bash
+3. Estructura del Proyecto
+T6-ArbolBinario-LlamucaAndres/
+ ├── README.md
+ └── src/
+     ├── modelo/
+     │   └── Nodo.java            # Nodo genérico Nodo<T>: dato, hijos, esHoja(), grado()
+     ├── negocio/
+     │   └── ArbolBinario.java    # Lógica del árbol: inserción, conteo, altura, visualización
+     └── app/
+         └── Main.java            # Menú interactivo con Scanner y casos de prueba
+4. Instrucciones de Ejecución
+Clona este repositorio:
+bash
    git clone https://github.com/llamucaandres161-prog/T6-ArbolBinario-LlamucaAndres.git
-   ```
-2. Navega a la carpeta principal del proyecto y entra a `src`:
-   ```bash
+Entra a la carpeta src:
+bash
    cd T6-ArbolBinario-LlamucaAndres/src
-   ```
-3. Compila los archivos:
-   ```bash
+Compila:
+bash
    javac app/Main.java modelo/Nodo.java negocio/ArbolBinario.java
-   ```
-4. Ejecuta el programa:
-   ```bash
+Ejecuta:
+bash
    java app.Main
-   ```
 
-> **Requisito:** tener instalado el JDK (Java 8 o superior).
+Requisito: JDK 8 o superior.
 
-## 5. Funcionalidades
+5. Menú del Programa
+Opción	Acción
+1	Crear el árbol inicial
+2	Visualizar el árbol
+3	Consultar el número de nodos
+4	Consultar el número de hojas
+5	Consultar la altura
+6	Consultar el grado de un nodo
+7	Verificar si un nodo es hoja
+8	Ejecutar casos de prueba
+0	Salir
+6. Resultados y Casos de Prueba
+Caso	Resultado esperado
+Árbol vacío	0 nodos, altura -1
+Árbol con un solo nodo	1 hoja, altura 0
+Árbol inicial	9 nodos, 5 hojas, altura 3
+Insertar en posición ocupada	Se rechaza con un mensaje de error
+Grado de FISEI y SOFTWARE	2 y 2
+Capturas de ejecución
 
-- Construcción de un árbol binario de dependencias académicas.
-- Visualización del árbol por consola.
-- Cálculo recursivo del número total de nodos.
-- Cálculo recursivo del número de nodos hoja.
-- Cálculo recursivo de la altura del árbol.
+Agregar aquí las capturas de pantalla (menú, visualización del árbol y casos de prueba).
+
+7. Restricciones Cumplidas
+No se usan TreeSet, TreeMap, PriorityQueue, NavigableSet ni NavigableMap.
+El conteo de nodos, el conteo de hojas y la altura se implementan con recursividad.
