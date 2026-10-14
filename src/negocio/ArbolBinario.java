@@ -3,15 +3,16 @@ package negocio;
 import modelo.Nodo;
 
 /**
- * Clase ArbolBinario.
- * Contiene la logica del arbol: construccion de la jerarquia
- * institucional, visualizacion por consola y calculos recursivos
- * (total de nodos, nodos hoja y altura).
+ * Clase generica ArbolBinario<T>.
+ * Contiene las operaciones de construccion, consulta y analisis del arbol.
+ * El conteo de nodos, hojas y la altura se implementan con recursividad.
+ *
+ * @param <T> tipo de dato almacenado en los nodos
  */
-public class ArbolBinario {
+public class ArbolBinario<T> {
 
-    // Nodo raiz del arbol
-    private Nodo raiz;
+    // Nodo raiz del arbol (null si el arbol esta vacio)
+    private Nodo<T> raiz;
 
     /**
      * Constructor: crea un arbol vacio.
@@ -20,76 +21,96 @@ public class ArbolBinario {
         this.raiz = null;
     }
 
-    /**
-     * Construye la jerarquia de dependencias academicas.
-     *
-     *              UNIVERSIDAD
-     *              /         \
-     *        FISEI             DIDE
-     *        /   \             /   \
-     *  SOFTWARE   TI     INVEST.  VINCULACION
-     *    /   \
-     * NIVEL1 NIVEL3
-     */
-    public void construirArbol() {
-        // Nivel 0: raiz
-        raiz = new Nodo("UNIVERSIDAD");
-
-        // Nivel 1: hijos de la raiz
-        Nodo fisei = new Nodo("FISEI");
-        Nodo dide = new Nodo("DIDE");
-        raiz.setIzquierdo(fisei);
-        raiz.setDerecho(dide);
-
-        // Nivel 2: hijos de FISEI
-        Nodo software = new Nodo("SOFTWARE");
-        Nodo ti = new Nodo("TI");
-        fisei.setIzquierdo(software);
-        fisei.setDerecho(ti);
-
-        // Nivel 2: hijos de DIDE
-        Nodo investigacion = new Nodo("INVESTIGACION");
-        Nodo vinculacion = new Nodo("VINCULACION");
-        dide.setIzquierdo(investigacion);
-        dide.setDerecho(vinculacion);
-
-        // Nivel 3: hijos de SOFTWARE
-        software.setIzquierdo(new Nodo("NIVEL1"));
-        software.setDerecho(new Nodo("NIVEL3"));
-    }
+    // ---------------- Construccion ----------------
 
     /**
-     * Muestra el arbol por consola con sangria segun el nivel.
-     * Se imprime en preorden: primero el nodo y luego sus hijos.
+     * Crea el nodo raiz del arbol.
+     * @param dato informacion de la raiz
+     * @throws IllegalStateException si el arbol ya tiene raiz
      */
-    public void mostrarArbol() {
-        if (raiz == null) {
-            System.out.println("El arbol esta vacio.");
-            return;
+    public void crearRaiz(T dato) {
+        if (raiz != null) {
+            throw new IllegalStateException("El arbol ya tiene una raiz.");
         }
-        mostrar(raiz, 0, "RAIZ");
+        raiz = new Nodo<>(dato);
     }
 
-    // Metodo recursivo auxiliar para imprimir el arbol
-    private void mostrar(Nodo nodo, int nivel, String posicion) {
-        // Caso base: nodo nulo, no se imprime nada
+    /**
+     * Agrega un hijo izquierdo al nodo cuyo dato sea "padre".
+     * @param padre dato del nodo padre
+     * @param dato  dato del nuevo hijo
+     * @throws IllegalArgumentException si el padre no existe
+     * @throws IllegalStateException    si la posicion izquierda ya esta ocupada
+     */
+    public void agregarIzquierdo(T padre, T dato) {
+        Nodo<T> nodoPadre = buscar(padre);
+        if (nodoPadre == null) {
+            throw new IllegalArgumentException("No existe el nodo padre: " + padre);
+        }
+        if (nodoPadre.getIzquierdo() != null) {
+            throw new IllegalStateException("La posicion izquierda de " + padre
+                    + " ya esta ocupada por " + nodoPadre.getIzquierdo().getDato());
+        }
+        nodoPadre.setIzquierdo(new Nodo<>(dato));
+    }
+
+    /**
+     * Agrega un hijo derecho al nodo cuyo dato sea "padre".
+     * @param padre dato del nodo padre
+     * @param dato  dato del nuevo hijo
+     * @throws IllegalArgumentException si el padre no existe
+     * @throws IllegalStateException    si la posicion derecha ya esta ocupada
+     */
+    public void agregarDerecho(T padre, T dato) {
+        Nodo<T> nodoPadre = buscar(padre);
+        if (nodoPadre == null) {
+            throw new IllegalArgumentException("No existe el nodo padre: " + padre);
+        }
+        if (nodoPadre.getDerecho() != null) {
+            throw new IllegalStateException("La posicion derecha de " + padre
+                    + " ya esta ocupada por " + nodoPadre.getDerecho().getDato());
+        }
+        nodoPadre.setDerecho(new Nodo<>(dato));
+    }
+
+    // ---------------- Consultas ----------------
+
+    /**
+     * Verifica si el arbol esta vacio.
+     * @return true si no tiene raiz
+     */
+    public boolean esVacio() {
+        return raiz == null;
+    }
+
+    /**
+     * Busca un nodo por su dato (recorrido en preorden).
+     * @param dato dato a buscar
+     * @return el nodo encontrado o null si no existe
+     */
+    public Nodo<T> buscar(T dato) {
+        return buscar(raiz, dato);
+    }
+
+    // Busqueda recursiva: revisa el nodo actual y luego sus subarboles
+    private Nodo<T> buscar(Nodo<T> nodo, T dato) {
+        // Caso base 1: llegamos a un hueco, no se encontro
         if (nodo == null) {
-            return;
+            return null;
         }
-
-        // Genera la sangria (4 espacios por nivel)
-        StringBuilder sangria = new StringBuilder();
-        for (int i = 0; i < nivel; i++) {
-            sangria.append("    ");
+        // Caso base 2: se encontro el dato
+        if (nodo.getDato().equals(dato)) {
+            return nodo;
         }
-
-        // Imprime el nodo con su posicion (RAIZ, IZQ o DER)
-        System.out.println(sangria + "[" + posicion + "] " + nodo.getDato());
-
-        // Llamadas recursivas para los hijos
-        mostrar(nodo.getIzquierdo(), nivel + 1, "IZQ");
-        mostrar(nodo.getDerecho(), nivel + 1, "DER");
+        // Se busca primero en el subarbol izquierdo y luego en el derecho
+        Nodo<T> enIzquierdo = buscar(nodo.getIzquierdo(), dato);
+        if (enIzquierdo != null) {
+            return enIzquierdo;
+        }
+        return buscar(nodo.getDerecho(), dato);
     }
+
+    // ---------------- Analisis (recursivos) ----------------
 
     /**
      * Cuenta el total de nodos del arbol.
@@ -99,8 +120,8 @@ public class ArbolBinario {
         return contarNodos(raiz);
     }
 
-    // Recursivo: nodos = 1 (el actual) + nodos del subarbol izq + der
-    private int contarNodos(Nodo nodo) {
+    // nodos = 1 (el actual) + nodos del subarbol izquierdo + nodos del derecho
+    private int contarNodos(Nodo<T> nodo) {
         // Caso base: un arbol vacio tiene 0 nodos
         if (nodo == null) {
             return 0;
@@ -116,8 +137,8 @@ public class ArbolBinario {
         return contarHojas(raiz);
     }
 
-    // Recursivo: si el nodo es hoja suma 1, si no, suma las hojas de sus hijos
-    private int contarHojas(Nodo nodo) {
+    // Si el nodo es hoja suma 1; si no, suma las hojas de sus subarboles
+    private int contarHojas(Nodo<T> nodo) {
         // Caso base 1: arbol vacio
         if (nodo == null) {
             return 0;
@@ -131,21 +152,50 @@ public class ArbolBinario {
 
     /**
      * Calcula la altura del arbol medida en aristas.
-     * Un arbol vacio tiene altura -1 y un solo nodo tiene altura 0.
+     * Arbol vacio = -1, un solo nodo = 0.
      * @return altura del arbol
      */
-    public int calcularAltura() {
-        return calcularAltura(raiz);
+    public int altura() {
+        return altura(raiz);
     }
 
-    // Recursivo: altura = 1 + la mayor altura entre los dos subarboles
-    private int calcularAltura(Nodo nodo) {
+    // altura = 1 + la mayor altura entre los dos subarboles
+    private int altura(Nodo<T> nodo) {
         // Caso base: arbol vacio
         if (nodo == null) {
             return -1;
         }
-        int alturaIzquierda = calcularAltura(nodo.getIzquierdo());
-        int alturaDerecha = calcularAltura(nodo.getDerecho());
+        int alturaIzquierda = altura(nodo.getIzquierdo());
+        int alturaDerecha = altura(nodo.getDerecho());
         return 1 + Math.max(alturaIzquierda, alturaDerecha);
+    }
+
+    // ---------------- Visualizacion ----------------
+
+    /**
+     * Muestra la estructura del arbol en consola, con sangria por nivel.
+     */
+    public void mostrarArbol() {
+        if (raiz == null) {
+            System.out.println("El arbol esta vacio.");
+            return;
+        }
+        mostrar(raiz, 0, "RAIZ");
+    }
+
+    // Impresion recursiva en preorden con 4 espacios de sangria por nivel
+    private void mostrar(Nodo<T> nodo, int nivel, String posicion) {
+        // Caso base: no hay nodo, no se imprime nada
+        if (nodo == null) {
+            return;
+        }
+        StringBuilder sangria = new StringBuilder();
+        for (int i = 0; i < nivel; i++) {
+            sangria.append("    ");
+        }
+        System.out.println(sangria + "[" + posicion + "] " + nodo.getDato());
+
+        mostrar(nodo.getIzquierdo(), nivel + 1, "IZQ");
+        mostrar(nodo.getDerecho(), nivel + 1, "DER");
     }
 }
