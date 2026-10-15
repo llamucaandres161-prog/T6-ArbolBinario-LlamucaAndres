@@ -22,11 +22,12 @@ El sistema inicializa la siguiente jerarquía institucional, la cual contiene **
  NIVEL1 NIVEL3
 ```
 
-## 3. Estructura del Proyecto
+## 3. Organización del Proyecto
 
 ```
 T6-ArbolBinario-LlamucaAndres/
  ├── README.md
+ ├── capturas/                    # Capturas de la ejecución
  └── src/
      ├── modelo/
      │   └── Nodo.java            # Nodo genérico Nodo<T>: dato, hijos, esHoja(), grado()
@@ -36,7 +37,26 @@ T6-ArbolBinario-LlamucaAndres/
          └── Main.java            # Menú interactivo con Scanner y casos de prueba
 ```
 
+| Clase | Paquete | Responsabilidad |
+|-------|---------|-----------------|
+| `Nodo<T>` | `modelo` | Nodo genérico con dato, hijo izquierdo y derecho. Incluye `esHoja()`, `grado()` y getters/setters. |
+| `ArbolBinario<T>` | `negocio` | `crearRaiz`, `agregarIzquierdo`, `agregarDerecho`, `contarNodos`, `contarHojas`, `altura`, `esVacio` y `mostrarArbol`. |
+| `Main` | `app` | Menú interactivo con `Scanner`, construcción del árbol inicial y casos de prueba. |
+
+### Lógica recursiva
+
+- **Nodos:** si el nodo es nulo devuelve 0; si no, `1 + nodos(izquierdo) + nodos(derecho)`.
+- **Hojas:** si el nodo es nulo devuelve 0; si no tiene hijos devuelve 1; si no, suma las hojas de ambos subárboles.
+- **Altura:** si el nodo es nulo devuelve -1; si no, `1 + max(altura(izquierdo), altura(derecho))`. Así un árbol vacío tiene altura -1 y un solo nodo, altura 0.
+
+### Restricciones cumplidas
+
+- No se usan `TreeSet`, `TreeMap`, `PriorityQueue`, `NavigableSet` ni `NavigableMap`.
+- El conteo de nodos, el conteo de hojas y la altura se implementan con recursividad.
+
 ## 4. Instrucciones de Ejecución
+
+El proyecto puede ejecutarse desde cualquier IDE (como Visual Studio Code) o desde la terminal.
 
 1. Clona este repositorio:
    ```bash
@@ -71,21 +91,42 @@ T6-ArbolBinario-LlamucaAndres/
 | 8 | Ejecutar casos de prueba |
 | 0 | Salir |
 
-## 6. Resultados y Casos de Prueba
+## 6. Resultados
 
-| Caso | Resultado esperado |
-|------|--------------------|
-| Árbol vacío | 0 nodos, altura -1 |
-| Árbol con un solo nodo | 1 hoja, altura 0 |
-| Árbol inicial | 9 nodos, 5 hojas, altura 3 |
-| Insertar en posición ocupada | Se rechaza con un mensaje de error |
-| Grado de FISEI y SOFTWARE | 2 y 2 |
+### 6.1 Menú principal
 
-### Capturas de ejecución
+![Menú principal](capturas/01-menu.png)
 
-> Agregar aquí las capturas de pantalla (menú, visualización del árbol y casos de prueba).
+### 6.2 Creación y visualización del árbol (opciones 1 y 2)
 
-## 7. Restricciones Cumplidas
+![Creación y visualización del árbol](capturas/02-crear-y-visualizar.png)
 
-- No se usan `TreeSet`, `TreeMap`, `PriorityQueue`, `NavigableSet` ni `NavigableMap`.
-- El conteo de nodos, el conteo de hojas y la altura se implementan con recursividad.
+### 6.3 Número de nodos, hojas y altura (opciones 3, 4 y 5)
+
+El árbol inicial tiene **9 nodos**, **5 hojas** y una **altura de 3**.
+
+![Nodos, hojas y altura](capturas/03-nodos-hojas-altura.png)
+
+### 6.4 Grado de un nodo (opción 6)
+
+FISEI y SOFTWARE tienen grado 2.
+
+![Grado de un nodo](capturas/04-grado.png)
+
+### 6.5 Verificación de nodo hoja (opción 7)
+
+FISEI no es hoja; NIVEL1 sí lo es.
+
+![Verificación de hoja](capturas/05-hoja.png)
+
+## 7. Casos de Prueba
+
+| Caso | Prueba | Esperado | Obtenido |
+|------|--------|----------|----------|
+| 1 | Árbol vacío | 0 nodos, altura -1 | 0 nodos, altura -1 |
+| 2 | Árbol con un solo nodo | 1 hoja, altura 0 | 1 hoja, altura 0 |
+| 3 | Árbol inicial | 9 nodos, 5 hojas, altura 3 | 9 nodos, 5 hojas, altura 3 |
+| 4 | Insertar en posición ocupada | Se rechaza la inserción | Rechazado: la posición izquierda de FISEI ya está ocupada por SOFTWARE |
+| 5 | Grado de FISEI y SOFTWARE | 2 y 2 | 2 y 2 |
+
+![Casos de prueba](capturas/06-casos-prueba.png)
