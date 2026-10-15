@@ -1,8 +1,8 @@
 package app;
 
 import java.util.Scanner;
-import negocio.ArbolBinario;
 import modelo.Nodo;
+import negocio.ArbolBinario;
 
 /**
  * Clase Main.
@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-        // El arbol inicia vacio hasta que el usuario elija la opcion 1
+        // El arbol inicia vacio hasta que el usuario elija la opcion 11
         ArbolBinario<String> arbol = new ArbolBinario<>();
         int opcion = -1;
 

@@ -1,5 +1,7 @@
 package negocio;
 
+import java.util.ArrayList;
+import java.util.List;
 import modelo.Nodo;
 
 /**
@@ -173,42 +175,147 @@ public class ArbolBinario<T> {
     // ---------------- Visualizacion ----------------
 
     /**
-     * Muestra la estructura del arbol en consola dibujando las ramas.
-     * Cada hijo se marca con [IZQ] o [DER] para saber de que lado esta.
+     * Clase interna que guarda el dibujo de un subarbol:
+     * sus lineas de texto, su ancho y la columna donde esta el centro de su raiz.
+     */
+    private static class Bloque {
+        List<String> lineas = new ArrayList<>();
+        int ancho;
+        int raiz;
+    }
+
+    /**
+     * Muestra el arbol en consola con forma de arbol: cada padre queda
+     * centrado sobre sus hijos y se unen con ramas "/" y "\".
      */
     public void mostrarArbol() {
         if (raiz == null) {
             System.out.println("El arbol esta vacio.");
             return;
         }
-        // Se imprime la raiz y luego se dibujan sus ramas
-        System.out.println(raiz.getDato());
-        mostrarHijos(raiz, "");
-    }
-
-    // Dibuja los hijos de un nodo (primero el izquierdo y luego el derecho)
-    private void mostrarHijos(Nodo<T> nodo, String prefijo) {
-        Nodo<T> izquierdo = nodo.getIzquierdo();
-        Nodo<T> derecho = nodo.getDerecho();
-
-        // El hijo izquierdo es el ultimo de la rama solo si no hay hijo derecho
-        if (izquierdo != null) {
-            imprimirRama(izquierdo, prefijo, derecho == null, "IZQ");
-        }
-        // El hijo derecho siempre es el ultimo de la rama
-        if (derecho != null) {
-            imprimirRama(derecho, prefijo, true, "DER");
+        Bloque dibujo = construirBloque(raiz);
+        for (String linea : dibujo.lineas) {
+            System.out.println(quitarEspaciosFinales(linea));
         }
     }
 
-    // Imprime una rama y continua recursivamente con los hijos de ese nodo
-    private void imprimirRama(Nodo<T> nodo, String prefijo, boolean esUltimo, String posicion) {
-        // "`-- " marca el ultimo hijo y "|-- " los demas
-        String conector = esUltimo ? "`-- " : "|-- ";
-        System.out.println(prefijo + conector + "[" + posicion + "] " + nodo.getDato());
+    /**
+     * Construye (recursivamente) el dibujo del subarbol que empieza en "nodo".
+     * Primero dibuja los hijos, luego los junta uno al lado del otro y
+     * finalmente coloca al padre centrado encima con sus ramas.
+     */
+    private Bloque construirBloque(Nodo<T> nodo) {
+        String etiqueta = String.valueOf(nodo.getDato());
+        int largo = etiqueta.length();
 
-        // Si hay mas hermanos debajo, se mantiene la linea vertical "|"
-        String nuevoPrefijo = prefijo + (esUltimo ? "    " : "|   ");
-        mostrarHijos(nodo, nuevoPrefijo);
+        // Dibujo de cada hijo (null si no existe)
+        Bloque izq = (nodo.getIzquierdo() != null) ? construirBloque(nodo.getIzquierdo()) : null;
+        Bloque der = (nodo.getDerecho() != null) ? construirBloque(nodo.getDerecho()) : null;
+
+        Bloque resultado = new Bloque();
+
+        // Caso base: una hoja se dibuja solo con su nombre
+        if (izq == null && der == null) {
+            resultado.lineas.add(etiqueta);
+            resultado.ancho = largo;
+            resultado.raiz = largo / 2;
+            return resultado;
+        }
+
+        int separacion = 3;       // espacios entre el subarbol izquierdo y el derecho
+        int anchoCuerpo;          // ancho del dibujo de los hijos
+        int centro;               // columna donde se centra el padre
+        int conectorIzq = -1;     // columna de la rama "/" (-1 si no hay)
+        int conectorDer = -1;     // columna de la rama "\" (-1 si no hay)
+        List<String> cuerpo = new ArrayList<>();
+
+        if (izq != null && der != null) {
+            // Dos hijos: se colocan lado a lado y el padre va en el medio
+            int colDer = izq.ancho + separacion;
+            anchoCuerpo = colDer + der.ancho;
+            int raizIzq = izq.raiz;
+            int raizDer = colDer + der.raiz;
+            centro = (raizIzq + raizDer) / 2;
+            conectorIzq = Math.max(raizIzq, (raizIzq + centro) / 2);
+            conectorDer = Math.min(raizDer, (centro + raizDer + 1) / 2);
+
+            // Se unen las lineas de ambos subarboles (el mas bajo se rellena con espacios)
+            int alto = Math.max(izq.lineas.size(), der.lineas.size());
+            for (int k = 0; k < alto; k++) {
+                String l = (k < izq.lineas.size()) ? izq.lineas.get(k) : espacios(izq.ancho);
+                String r = (k < der.lineas.size()) ? der.lineas.get(k) : espacios(der.ancho);
+                cuerpo.add(l + espacios(separacion) + r);
+            }
+        } else if (izq != null) {
+            // Solo hijo izquierdo: el padre queda arriba y a la derecha del hijo
+            anchoCuerpo = izq.ancho;
+            centro = izq.raiz + 2;
+            conectorIzq = izq.raiz + 1;
+            cuerpo.addAll(izq.lineas);
+        } else {
+            // Solo hijo derecho: el padre queda arriba y a la izquierda del hijo
+            anchoCuerpo = der.ancho;
+            centro = der.raiz - 2;
+            conectorDer = der.raiz - 1;
+            cuerpo.addAll(der.lineas);
+        }
+
+        // Si el nombre del padre se sale por la izquierda, se desplaza todo a la derecha
+        int inicio = centro - largo / 2;
+        int desplazamiento = (inicio < 0) ? -inicio : 0;
+        centro += desplazamiento;
+        inicio += desplazamiento;
+        if (conectorIzq >= 0) {
+            conectorIzq += desplazamiento;
+        }
+        if (conectorDer >= 0) {
+            conectorDer += desplazamiento;
+        }
+        int ancho = Math.max(anchoCuerpo + desplazamiento, inicio + largo);
+
+        // Linea de las ramas
+        char[] filaRamas = new char[ancho];
+        for (int c = 0; c < ancho; c++) {
+            filaRamas[c] = ' ';
+        }
+        if (conectorIzq >= 0) {
+            filaRamas[conectorIzq] = '/';
+        }
+        if (conectorDer >= 0) {
+            filaRamas[conectorDer] = '\\';
+        }
+
+        // Se arma el resultado: nombre del padre, ramas y dibujo de los hijos
+        resultado.lineas.add(rellenar(espacios(inicio) + etiqueta, ancho));
+        resultado.lineas.add(new String(filaRamas));
+        for (String linea : cuerpo) {
+            resultado.lineas.add(rellenar(espacios(desplazamiento) + linea, ancho));
+        }
+        resultado.ancho = ancho;
+        resultado.raiz = centro;
+        return resultado;
+    }
+
+    // Devuelve una cadena con "n" espacios
+    private String espacios(int n) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            sb.append(' ');
+        }
+        return sb.toString();
+    }
+
+    // Rellena con espacios a la derecha hasta alcanzar el ancho indicado
+    private String rellenar(String texto, int ancho) {
+        return texto + espacios(ancho - texto.length());
+    }
+
+    // Quita los espacios sobrantes al final de una linea
+    private String quitarEspaciosFinales(String texto) {
+        int fin = texto.length();
+        while (fin > 0 && texto.charAt(fin - 1) == ' ') {
+            fin--;
+        }
+        return texto.substring(0, fin);
     }
 }
