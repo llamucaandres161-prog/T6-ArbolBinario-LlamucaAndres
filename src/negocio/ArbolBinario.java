@@ -173,29 +173,42 @@ public class ArbolBinario<T> {
     // ---------------- Visualizacion ----------------
 
     /**
-     * Muestra la estructura del arbol en consola, con sangria por nivel.
+     * Muestra la estructura del arbol en consola dibujando las ramas.
+     * Cada hijo se marca con [IZQ] o [DER] para saber de que lado esta.
      */
     public void mostrarArbol() {
         if (raiz == null) {
             System.out.println("El arbol esta vacio.");
             return;
         }
-        mostrar(raiz, 0, "RAIZ");
+        // Se imprime la raiz y luego se dibujan sus ramas
+        System.out.println(raiz.getDato());
+        mostrarHijos(raiz, "");
     }
 
-    // Impresion recursiva en preorden con 4 espacios de sangria por nivel
-    private void mostrar(Nodo<T> nodo, int nivel, String posicion) {
-        // Caso base: no hay nodo, no se imprime nada
-        if (nodo == null) {
-            return;
-        }
-        StringBuilder sangria = new StringBuilder();
-        for (int i = 0; i < nivel; i++) {
-            sangria.append("    ");
-        }
-        System.out.println(sangria + "[" + posicion + "] " + nodo.getDato());
+    // Dibuja los hijos de un nodo (primero el izquierdo y luego el derecho)
+    private void mostrarHijos(Nodo<T> nodo, String prefijo) {
+        Nodo<T> izquierdo = nodo.getIzquierdo();
+        Nodo<T> derecho = nodo.getDerecho();
 
-        mostrar(nodo.getIzquierdo(), nivel + 1, "IZQ");
-        mostrar(nodo.getDerecho(), nivel + 1, "DER");
+        // El hijo izquierdo es el ultimo de la rama solo si no hay hijo derecho
+        if (izquierdo != null) {
+            imprimirRama(izquierdo, prefijo, derecho == null, "IZQ");
+        }
+        // El hijo derecho siempre es el ultimo de la rama
+        if (derecho != null) {
+            imprimirRama(derecho, prefijo, true, "DER");
+        }
+    }
+
+    // Imprime una rama y continua recursivamente con los hijos de ese nodo
+    private void imprimirRama(Nodo<T> nodo, String prefijo, boolean esUltimo, String posicion) {
+        // "`-- " marca el ultimo hijo y "|-- " los demas
+        String conector = esUltimo ? "`-- " : "|-- ";
+        System.out.println(prefijo + conector + "[" + posicion + "] " + nodo.getDato());
+
+        // Si hay mas hermanos debajo, se mantiene la linea vertical "|"
+        String nuevoPrefijo = prefijo + (esUltimo ? "    " : "|   ");
+        mostrarHijos(nodo, nuevoPrefijo);
     }
 }
